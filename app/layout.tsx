@@ -1,18 +1,32 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { Geist, Geist_Mono, Playfair_Display, Poppins } from "next/font/google";
+import "./globals.css"
 import Providers from "@/redux/provider/provider";
 import Navbar from "@/components/navbar/navbar";
 import { Toaster } from "sonner";
+import LayoutWrapper from "@/components/layoutWrapper/layoutWrapper";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+
+
+
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
+
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
+
+const playfair = Playfair_Display({
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["300", "400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -27,16 +41,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${playfair.className}`}
       >
 
         <Providers>
-          <Toaster/>
-          <Navbar />
+          {/* <LayoutWrapper> */}
+            <Toaster position="top-center"
+              theme="dark"
+              richColors
+              duration={3000} />
 
-          {children}
-          
+            {children}
+          {/* </LayoutWrapper> */}
+
 
         </Providers>
       </body>

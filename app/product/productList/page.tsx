@@ -4,9 +4,12 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Autocomplete, TextField } from "@mui/material";
+import { Autocomplete, Box, Button, IconButton, TextField, Typography } from "@mui/material";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import Swal from "sweetalert2";
+import styles from "../productList/productList.module.css"
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 import {
   deleteProduct,
@@ -15,6 +18,7 @@ import {
 } from "@/redux/slice/productSlice";
 
 import "react-loading-skeleton/dist/skeleton.css";
+
 
 export default function ProductListPage() {
   const dispatch = useDispatch();
@@ -58,94 +62,147 @@ export default function ProductListPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Product List</h1>
-
-      <Autocomplete
-        disablePortal
-        options={productList}
-        sx={{ width: 300 ,
-          backgroundColor: "#cec2c2"
-        }}
-        getOptionLabel={(option) => option.title || ""}
-        renderInput={(params) => (
-          <TextField {...params} label="Search product" />
-        )}
-        onInputChange={(e, value) => dispatch(searchData(value))}
-      />
-
-      <table
-        style={{
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "#efe3d3",
+        p: 3,
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <Box
+        sx={{
           width: "100%",
-          borderCollapse: "collapse",
-          marginTop: "20px",
-          backgroundColor: "#111",
-          color: "#fff",
+          maxWidth: "100 vw",
+          background: "#fff",
+          borderRadius: "16px",
+          p: 3,
+          boxShadow: "0 15px 40px rgba(0,0,0,0.15)",
         }}
       >
-        <thead>
-          <tr>
-            <th style={thStyle}>Title</th>
-            <th style={thStyle}>Subtitle</th>
-            <th style={thStyle}>Content</th>
-            <th style={thStyle}>Actions</th>
-          </tr>
-        </thead>
+        {/* HEADING */}
+        <Typography
+          sx={{
+            fontSize: "28px",
+            fontWeight: "bold",
+            color: "#5c2c1c",
+            mb: 3,
+            textAlign: "center",
+            fontFamily: "Playfair Display, serif",
+          }}
+        >
+          Product List
+        </Typography>
 
-        <tbody>
-          {loading ? (
-            <SkeletonTheme baseColor="#2a2a2a" highlightColor="#444">
-              {[...Array(8)].map((_, i) => (
-                <tr key={i}>
-                  <td style={tdStyle}><Skeleton /></td>
-                  <td style={tdStyle}><Skeleton /></td>
-                  <td style={tdStyle}><Skeleton /></td>
-                  <td style={tdStyle}><Skeleton /></td>
-                </tr>
-              ))}
-            </SkeletonTheme>
-          ) : filteredList.length > 0 ? (
-            filteredList.map((item) => (
-              <tr key={item._id}>
-                <td style={tdStyle}>{item.title}</td>
-                <td style={tdStyle}>{item.subtitle}</td>
-                <td style={tdStyle}>{item.content}</td>
-                <td style={tdStyle}>
-                  <Link href={`/product/updateProduct/${item._id}`}>
-                    Update
-                  </Link>
-                  &nbsp;|&nbsp;
-                  <button
-                    onClick={() => handleDelete(item._id)}
+        {/* SEARCH */}
+        <Box sx={{ width: "60%", mb: 3 }}>
+          <Autocomplete
+            disablePortal
+            options={productList}
+            sx={{
+              width: "70%",
+              background: "#fafafa",
+              borderRadius: "8px",
+            }}
+            getOptionLabel={(option) => option.title || ""}
+            renderInput={(params) => (
+              <TextField {...params} label="Search product" fullWidth />
+            )}
+            onInputChange={(e, value) => dispatch(searchData(value))}
+          />
+        </Box>
+
+        {/* TABLE */}
+        <Box sx={{ overflowX: "auto" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+            }}
+          >
+            <thead>
+              <tr style={{ background: "#5c2c1c", color: "#fff" }}>
+                <th style={{ ...thStyle, borderBottom: "2px solid #ddd" }}>Title</th>
+                <th style={{ ...thStyle, borderBottom: "2px solid #ddd" }}>Subtitle</th>
+                <th style={{ ...thStyle, borderBottom: "2px solid #ddd" }}>Content</th>
+                <th style={{ ...thStyle, borderBottom: "2px solid #ddd" }}>Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {loading ? (
+                <SkeletonTheme baseColor="#e0e0e0" highlightColor="#f5f5f5">
+                  {[...Array(6)].map((_, i) => (
+                    <tr key={i}>
+                      <td style={tdStyle}><Skeleton /></td>
+                      <td style={tdStyle}><Skeleton /></td>
+                      <td style={tdStyle}><Skeleton /></td>
+                      <td style={tdStyle}><Skeleton /></td>
+                    </tr>
+                  ))}
+                </SkeletonTheme>
+              ) : filteredList.length > 0 ? (
+                filteredList.map((item) => (
+                  <tr
+                    key={item._id}
                     style={{
-                      color: "red",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
+                      borderBottom: "1px solid #ddd", // ✅ LINE BETWEEN ROWS
                     }}
                   >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" style={{ textAlign: "center" }}>
-                No products found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+                    <td style={tdStyle}>{item.title}</td>
+                    <td style={tdStyle}>{item.subtitle}</td>
+                    <td style={tdStyle}>{item.content}</td>
 
-      <button
-        style={{ marginTop: "20px" }}
-        onClick={() => router.push("/product/createProduct")}
-      >
-        Create Product
-      </button>
-    </div>
+                    <td style={tdStyle}>
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <Link href={`/product/updateProduct/${item._id}`}>
+                          <IconButton size="small" sx={{ color: "#5c2c1c" }}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                        </Link>
+
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDelete(item._id)}
+                          sx={{ color: "#d32f2f" }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center", padding: "20px" }}>
+                    No products found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </Box>
+
+        {/* CREATE BUTTON */}
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Button
+            onClick={() => router.push("/product/createProduct")}
+            style={{
+              padding: "10px 30px",
+              borderRadius: "30px",
+              background: "#5c2c1c",
+              color: "#fff",
+              fontWeight: "bold",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            Create Product
+          </Button>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 

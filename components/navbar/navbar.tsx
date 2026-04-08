@@ -9,17 +9,21 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import { Cookies } from 'react-cookie';
 import Link from 'next/link';
-import { logout } from '@/redux/slice/authSlice';
-import { useDispatch } from 'react-redux';
+import { checkToken, logout } from '@/redux/slice/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 
-   
+
 export default function Navbar() {
 
     const dispatch = useDispatch()
 
-
+    // const { isloggedIn } = useSelector(item => item.auth)
+const { isloggedIn } = useSelector((state: any) => state.auth)
     const cookies = new Cookies();
 
+
+    console.log(isloggedIn, "isloggedIn")
 
 
 
@@ -30,27 +34,41 @@ export default function Navbar() {
 
     }
 
+    // useEffect((item) => {
+    //     dispatch(checkToken())
 
+            useEffect(() => {
+        dispatch(checkToken())
+
+    }, [dispatch ,isloggedIn])
+
+    
+
+
+ if (!isloggedIn) return null;
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <AppBar position="static">
+            <AppBar position="absolute"
+            sx={{zIndex:1200,
+                    backgroundColor: "#1a1a28",
+                    borderBottom: "1px solid #1c1f2a",
+            }}>
                 <Toolbar>
-                    <IconButton
+                    {/* <IconButton
                         size="large"
                         edge="start"
                         color="inherit"
                         aria-label="menu"
                         sx={{ mr: 2 }}
                     >
-                        <MenuIcon/>
-                    </IconButton>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        News
-                    </Typography>
-                    <Link href="/auth/signIn">Login</Link>
-
-                    <Link href={"/auth/signIn"} color="inherit" onClick={() => Logout()}>Logout</Link>
-
+                        <MenuIcon />
+                    </IconButton> */}
+                    <Link href="/" style={{ color: 'inherit', textDecoration: 'none', flexGrow: 1 }}>
+                        <Typography variant="h6" component="div" sx={{ flexGrow: 1, cursor: 'pointer' }}>
+                            My App
+                        </Typography>
+                    </Link>
+                    {isloggedIn ? <Link href={"/auth/signIn"} color="inherit" onClick={() => Logout()}>Logout</Link> : ""}
                 </Toolbar>
             </AppBar>
         </Box>

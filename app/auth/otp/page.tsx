@@ -1,102 +1,4 @@
-// // "use client";
 
-// // import { useEffect, useState } from "react";
-// // import { useRouter } from "next/navigation";
-// // import { useDispatch } from "react-redux";
-// // import { verifyOtp } from "@/redux/slice/authSlice";
-
-// // export default function Otp() {
-// //     const router = useRouter();
-// //   const dispatch = useDispatch();
-
-// //   const [userId, setUserId] = useState(null);
-// //   const [email, setEmail] = useState(null);
-
-
-// //   useEffect(() => {
-// //     setUserId(localStorage.getItem("Id"));
-// //     setEmail(localStorage.getItem("email"));
-// //   }, []);
-
-// //   const handleChange = (e, index) => {
-// //     const value = e.target.value.replace(/\D/g, "").slice(-1);
-// //     e.target.value = value;
-
-// //     if (value) {
-// //       const next = document.getElementById(`otp-${index + 1}`);
-// //       if (next) next.focus();
-// //     }
-// //   };
-
-// //   const handleSubmit = async (e) => {
-// //     e.preventDefault();
-
-// //     if (!userId) {
-// //       alert("User not found. Please register again.");
-// //       return;
-// //     }
-
-// //     let otpValue = "";
-// //     for (let i = 0; i < 6; i++) {
-// //       otpValue += document.getElementById(`otp-${i}`).value;
-// //     }
-
-// //     const payload = {
-// //       userId,
-// //       otp: otpValue,
-// //     };
-
-// //     console.log(payload, "payload")
-
-// //     const res = dispatch(verifyOtp(payload));
-
-// //     console.log(res,"ff")
-
-// //     if (res.payload?.status === true) {
-// //       alert("OTP Verified Successfully");
-// //         router.push("/");
-// //     } else {
-// //       alert(res.payload?.message || "OTP verification failed");
-// //     }
-// //   };
-
-// //   return (
-// //     <div
-// //       className="auth-container"
-// //       style={{ textAlign: "center", marginTop: "40px" }}
-// //     >
-// //       <h3>OTP Verification</h3>
-// //       <p>Your mail id is - {email}</p>
-
-// //       <form onSubmit={handleSubmit}>
-// //         <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-// //           {Array.from({ length: 6 }).map((_, index) => (
-// //             <input
-// //               key={index}
-// //               id={`otp-${index}`}
-// //               type="text"
-// //               maxLength="1"
-// //               onChange={(e) => handleChange(e, index)}
-// //               style={{
-// //                 width: "50px",
-// //                 height: "50px",
-// //                 textAlign: "center",
-// //                 fontSize: "20px",
-// //                 borderRadius: "12px",
-// //                 backgroundColor: "#9eaaaa5d",
-// //                 border: "1px solid #b0adad",
-// //                 color: "#454849ff",
-// //               }}
-// //             />
-// //           ))}
-// //         </div>
-
-// //         <br />
-// //         <button type="submit">Verify OTP</button>
-// //       </form>
-// //     </div>
-// //   );
-// // }
 
 "use client"
 import { verifyOtp } from '@/redux/slice/authSlice';
@@ -104,29 +6,33 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { toast } from 'sonner';
+import { Box, Button, Typography } from '@mui/material';
 
 
 export default function OtpPage() {
 
-    const dispatch = useDispatch();
-    const router = useRouter()
-    const { email, isOtpVerified } = useSelector(
-    (state) => state.auth);
-    
+  const dispatch = useDispatch();
+  const router = useRouter()
+  const { loading } = useSelector((state) => state.auth);
+  // const { email, isOtpVerified } = useSelector(
+  // (state) => state.auth);
+  const { email } = useSelector((state) => state.auth);
+  const [userEmail, setUserEmail] = useState("");
 
   const [userId, setUserId] = useState("");
 
- useEffect(() => {
-  const id = localStorage.getItem("Id");
-   if (id) {
-    setUserId(id);
-   }
- }, []);
+  useEffect(() => {
+    const id = localStorage.getItem("Id");
+    const mail = localStorage.getItem("email");
 
- const handleChange =(e,index) => {
+    if (id) setUserId(id);
+    if (mail) setUserEmail(mail);
+  }, []);
+
+  const handleChange = (e, index) => {
     const value = e.target.value.replace(/\D/g, "").slice(-1)
     e.target.value = value
-    
+
 
     // If a valid digit is entered, move focus to next box
     if (value && index < 5) {
@@ -135,192 +41,187 @@ export default function OtpPage() {
     }
   }
 
- 
 
- const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
 
-  // Collect OTP from inputs
-  let otpValue = "";
-  for (let i = 0; i < 6; i++) {
-    const input = document.getElementById(`otp-${i}`) as HTMLInputElement;
-    otpValue += input?.value || "";
-  }
+  const handleSubmit = async (e) => {
+    
+    e.preventDefault();
 
-  // Prepare payload
-  const payload = {
-    userId: localStorage.getItem("Id"),
-    otp: otpValue,
-  };
+    // Collect OTP from inputs
+    let otpValue = "";
+    for (let i = 0; i < 6; i++) {
+      const input = document.getElementById(`otp-${i}`);
+      otpValue += input?.value || "";
+    }
 
-  // Dispatch thunk
-  try{
+    // Prepare payload
+    const payload = {
+      userId: localStorage.getItem("Id"),
+      otp: otpValue,
+    };
+
+    // Dispatch thunk
+    try {
       const result = await dispatch(verifyOtp(payload)).unwrap();
-      console.log(result,"otp response");
-      
-      if(result.status == true){
+      console.log(result, "otp response");
+
+      if (result.status == true) {
         router.push("/auth/signIn")
       }
-  }catch(error){
+    } catch (error) {
 
-  }
-  
+    }
+    
 
-  // Handle success
-  // if (authOtp.fulfilled.match(result)) {
-  //   alert("OTP Verified Successfully");
-  //   router.push("/"); // or dashboard
-  // }
 
-  // // Handle error
-  // if (authOtp.rejected.match(result)) {
-  //   alert(result.payload || "OTP verification failed");
-  // }
-};
+    // Handle success
+    // if (authOtp.fulfilled.match(result)) {
+    //   alert("OTP Verified Successfully");
+    //   router.push("/"); // or dashboard
+    // }
+
+    // // Handle error
+    // if (authOtp.rejected.match(result)) {
+    //   alert(result.payload || "OTP verification failed");
+    // }
+  };
 
 
 
   return (
-        <div
-      className="auth-container"
-      style={{ textAlign: "center", marginTop: "40px" }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        background: "#efe3d3",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        px: 2,
+      }}
     >
-      <h3>OTP Verification</h3>
-      <p style={{color:"#fff"}}>Your mail id is - {email}</p>
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "400px",
+          background: "#fff",
+          borderRadius: "16px",
+          p: 4,
+          textAlign: "center",
+          boxShadow: "0 15px 40px rgba(0,0,0,0.15)",
+        }}
+      >
+        <Typography
+          sx={{
+            fontSize: "26px",
+            fontWeight: "bold",
+            color: "#5c2c1c",
+            mb: 1,
+            fontFamily: "Playfair Display, serif",
+          }}
+        >
+          OTP Verification
+        </Typography>
 
-      <form onSubmit={handleSubmit}>
-        <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <input
-              key={index}
-              id={`otp-${index}`}
-              type="text"
-              maxLength="1"
-              onChange={(e) => handleChange(e, index)}
-              style={{
-                width: "50px",
-                height: "50px",
-                textAlign: "center",
-                fontSize: "20px",
-                borderRadius: "12px",
-                backgroundColor: "#9eaaaa5d",
-                border: "1px solid #b0adad",
-                color: "rgb(224, 236, 240)",
-                margin:"10px"
-              }}
-            />
-          ))}
-        </div>
+        <Typography
+          sx={{
+            fontSize: "14px",
+            color: "#6d4c41",
+            mb: 3,
+          }}
+        >
+          Your mail id is - <b>{email || userEmail}</b>
+        </Typography>
 
-        <button type="submit" >Verify OTP</button>
-      </form>
-    </div>
-   
-  )
+        <form onSubmit={handleSubmit}>
+          {/* OTP BOXES */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: 1,
+              mb: 3,
+            }}
+          >
+            {Array.from({ length: 6 }).map((_, index) => (
+              <Box
+                key={index}
+                component="input"
+                id={`otp-${index}`}
+                type="text"
+                maxLength="1"
+                onChange={(e) => handleChange(e, index)}
+                sx={{
+                  width: "45px",
+                  height: "50px",
+                  textAlign: "center",
+                  fontSize: "18px",
+                  borderRadius: "8px",
+                  border: "1px solid #ccc",
+                  outline: "none",
+                  "&:focus": {
+                    borderColor: "#5c2c1c",
+                    boxShadow: "0 0 0 2px rgba(92,44,28,0.2)",
+                  },
+                }}
+              />
+            ))}
+          </Box>
+
+          {/* BUTTON */}
+          <Button
+  type="submit"
+  fullWidth
+  disabled={loading}
+  sx={{
+    py: 1.5,
+    borderRadius: "30px",
+    background: "#5c2c1c",
+    color: "#fff",
+    fontWeight: "bold",
+    "&:hover": {
+      background: "#3e1d13",
+    },
+  }}
+>
+  {loading ? (
+    <Box sx={{ display: "flex", gap: "4px", justifyContent: "center" }}>
+      {[...Array(3)].map((_, i) => (
+        <Box
+          key={i}
+          sx={{
+            width: "6px",
+            height: "6px",
+            background: "#fff",
+            borderRadius: "50%",
+            animation: "wave 1.2s infinite ease-in-out",
+            animationDelay: `${i * 0.2}s`,
+          }}
+        />
+      ))}
+
+      <style>
+        {`
+          @keyframes wave {
+            0%, 60%, 100% {
+              transform: translateY(0);
+            }
+            30% {
+              transform: translateY(-6px);
+            }
+          }
+        `}
+      </style>
+    </Box>
+  ) : (
+    "Verify OTP"
+  )}
+</Button>
+        </form>
+      </Box>
+    </Box>
+  );
 }
 
 
-// "use client";
 
-// import { useEffect, useState } from "react";
-// import { useRouter } from "next/navigation";
-// import { useDispatch } from "react-redux";
-// import { verifyOtp } from "@/redux/slice/authSlice";
-// import { log } from "console";
-
-// export default function Otp() {
-//     const router = useRouter();
-//   const dispatch = useDispatch();
-
-//   const [userId, setUserId] = useState(null);
-//   const [email, setEmail] = useState(null);
-
-
-
-//   useEffect(() => {
-//     setUserId(localStorage.getItem("Id"));
-//     setEmail(localStorage.getItem("email"));
-//   }, []);
-//   console.log("kk" , email);
-  
-
-//   const handleChange = (e, index) => {
-//     const value = e.target.value.replace(/\D/g, "").slice(-1);
-//     e.target.value = value;
-
-//     if (value) {
-//       const next = document.getElementById(`otp-${index + 1}`);
-//       if (next) next.focus();
-//     }
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-
-//     if (!userId) {
-//       alert("User not found. Please register again.");
-//       return;
-//     }
-
-//     let otpValue = "";
-//     for (let i = 0; i < 6; i++) {
-//       otpValue += document.getElementById(`otp-${i}`).value;
-//     }
-
-//     const payload = {
-//       userId,
-//       otp: otpValue,
-//     };
-
-//     console.log(payload, "payload")
-
-//     const res = dispatch(verifyOtp(payload));
-
-//     console.log(res,"ff")
-
-//     if (res.payload?.status === true) {
-//       alert("OTP Verified Successfully");
-//         router.push("/");
-//     } else {
-//       alert(res.payload?.message || "OTP verification failed");
-//     }
-//   };
-
-//   return (
-//     <div
-//       className="auth-container"
-//       style={{ textAlign: "center", marginTop: "40px" }}
-//     >
-//       <h3>OTP Verification</h3>
-//       <p style={{color:"#fff"}}>Your mail id is - {email}</p>
-
-//       <form onSubmit={handleSubmit}>
-//         <div style={{ display: "flex", justifyContent: "center", gap: "10px" }}>
-//           {Array.from({ length: 6 }).map((_, index) => (
-//             <input
-//               key={index}
-//               id={`otp-${index}`}
-//               type="text"
-//               maxLength="1"
-//               onChange={(e) => handleChange(e, index)}
-//               style={{
-//                 width: "50px",
-//                 height: "50px",
-//                 textAlign: "center",
-//                 fontSize: "20px",
-//                 borderRadius: "12px",
-//                 backgroundColor: "#9eaaaa5d",
-//                 border: "1px solid #b0adad",
-//                 color: "#454849ff",
-//               }}
-//             />
-//           ))}
-//         </div>
-
-//         <br />
-//         <button type="submit">Verify OTP</button>
-//       </form>
-//     </div>
-//   );
-// }
 

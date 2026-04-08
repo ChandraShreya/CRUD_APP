@@ -87,13 +87,20 @@ import axiosInstance from "@/api/axios/axios";
 // import { endpoints } from "@/api/endPoints/endpoints";
 import { toast } from "sonner";
 import { endpoints } from "@/api/endPoints/endPoints";
+import { Cookies } from "react-cookie";
+import { error } from "console";
+import { stat } from "fs";
 
 const initialState = {
-  userId:null,
-  email:null,
-  token:null
+  userId: null,
+  email: null,
+  token: null,
+  isloggedIn: false,
+  loading: false,
+  error: null,
 };
 
+let cookie = new Cookies()
 /*signUp*/
 export const authRegistration = createAsyncThunk(
   "authRegistration",
@@ -128,49 +135,159 @@ export const verifyOtp = createAsyncThunk(
   }
 );
 
-
-
+/*reset email*/
+export const resetEmail = createAsyncThunk(
+  "resetEmail",
+  async (payload) => {
+    const response = await axiosInstance.post(
+      endpoints.auth.resetEmail, 
+      payload
+    );
+    return response.data;
+  }
+);
+ /*reset link*/
+export const resetLink = createAsyncThunk(
+  "resetLink",
+  async ({ userId, token, newPassword }) => {
+    const response = await axiosInstance.post(
+      `${endpoints.auth.resetLink}/${userId}/${token}`,
+      newPassword
+    );
+    return response.data;
+  }
+);
+/*update password*/
+export const updatePassword = createAsyncThunk(
+  "updatePassword",
+  async (payload) => {
+    const response = await axiosInstance.put(
+      endpoints.auth.updatePassword,
+      payload 
+    );
+    return response.data;
+  } 
+);
 
 const authSlice = createSlice({
   name: "authSlice",
   initialState,
   reducers: {
-    logout:(state,action)=>{
-      state.userId=null
-      state.email=null
-      state.token=null
+    logout: (state, action) => {
+      state.userId = null
+      state.email = null
+      state.token = null
+      toast("Logout sucessfull")
+      state.isloggedIn=false
 
+    },
+
+    checkToken: (state, action) => {
+      let token = cookie.get("token")
+      if (token !== null && token !== undefined) {
+        state.isloggedIn = true
+      }
     }
   },
 
   extraReducers: (builder) => {
     builder
       /*register*/
-      .addCase(authRegistration.pending, (state, { payload }) => { })
+      .addCase(authRegistration.pending, (state, { payload }) => {
+        state.loading = true,
+          state.error = null
+       })
 
       .addCase(authRegistration.fulfilled, (state, { payload }) => {
+        state.loading = false
         if (payload.status == true) {
           localStorage.setItem("Id", payload.user.id)
-          localStorage.setItem("email" , payload.user.email)
-          // state.email=payload.user.email
+          localStorage.setItem("email", payload.user.email)
+          state.email=payload.user.email
           toast.success(payload.message)
         }
       })
 
-      .addCase(authRegistration.rejected, (state, { payload }) => { })
+      .addCase(authRegistration.rejected, (state, { payload }) => { 
+        state.loading = false
+
+      })
 
       /*login*/
-      .addCase(authLogin.pending, () => { })
-      .addCase(authLogin.fulfilled, () => { })
-      .addCase(authLogin.rejected, () => { })
+      .addCase(authLogin.pending, (state, { payload }) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(authLogin.fulfilled, (state, { payload }) => {
+        state.loading = false
+        if (payload.status == true) {
+          state.isloggedIn = true
+        }
+      })
+      .addCase(authLogin.rejected, (state, { payload }) => {
+        state.loading = false
+       })
 
       /*verifyOtp*/
-      .addCase(verifyOtp.pending, () => { })
-      .addCase(verifyOtp.fulfilled, () => { })
-      .addCase(verifyOtp.rejected, () => { });
+      .addCase(verifyOtp.pending, (state, { payload }) => {
+        state.loading = true
+        state.error = null
+       })
+      .addCase(verifyOtp.fulfilled, (state, { payload }) => {
+        state.loading = false
+        toast.success("OTP verified successfully")
+       })
+      .addCase(verifyOtp.rejected, (state, { payload }) => { 
+        state.loading = false
+        toast.error("OTP verification failed")
+      });
+
+      /*reset email*/
+      builder
+      .addCase(resetEmail.pending, (state, { payload }) => { 
+        state.loading = true
+        state.error = null
+      })
+      .addCase(resetEmail.fulfilled, (state, { payload }) => {
+        state.loading = false
+        toast.success("Reset link sent to your email")
+       })
+      .addCase(resetEmail.rejected, (state, { payload }) => { 
+        state.loading = false
+        toast.error("Failed to send reset link")
+      });
+
+      /*reset link*/
+      builder
+      .addCase(resetLink.pending, (state, { payload }) => { 
+        state.loading = true
+        state.error = null
+      })
+      .addCase(resetLink.fulfilled, (state, { payload }) => {
+        state.loading = false
+        toast.success("Password reset successful")
+       })
+      .addCase(resetLink.rejected, (state, { payload }) => { 
+        state.loading = false
+        toast.error("Password reset failed")
+      });
+      /*update password*/
+      builder
+      .addCase(updatePassword.pending, (state, { payload }) => { 
+        state.loading = true
+        state.error = null
+      })
+      .addCase(updatePassword.fulfilled, (state, { payload }) => {
+        state.loading = false
+        toast.success("Password updated successfully")
+       })
+      .addCase(updatePassword.rejected, (state, { payload }) => { 
+        state.loading = false
+        toast.error("Failed to update password")
+      });
 
   },
 });
 
 export default authSlice;
-export const {logout}=authSlice.actions
+export const { logout, checkToken } = authSlice.actions

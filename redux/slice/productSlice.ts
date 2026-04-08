@@ -4,12 +4,15 @@ import axiosInstance from "@/api/axios/axios";
 import { endpoints } from "@/api/endPoints/endPoints";
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { error } from "console";
 import { toast } from "sonner";
 
 const initialState = {
   productList: [],
   search: "",
-  loading: false
+  loading: false,
+  error: null,
+
 };
 export const createProduct = createAsyncThunk(
   "createProduct",
@@ -34,7 +37,7 @@ export const updateProduct = createAsyncThunk(
   "productUpdate",
   async ({ id, data }) => {
     const response = await axiosInstance.put(
-      `${endpoints.product.update}/${id}`, 
+      `${endpoints.product.update}/${id}`,
       data
     );
     return response.data;
@@ -63,20 +66,29 @@ const productSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // createProduct
-      .addCase(createProduct.pending, (state, { payload }) => { })
+      .addCase(createProduct.pending, (state, { payload }) => { 
+        state.loading = true;
+        state.error = null;
+
+      })
       .addCase(createProduct.fulfilled, (state, { payload }) => {
+        state.loading = false;
         if (payload.status === true) {
           toast.success(payload.message);
         } else {
           toast.error(payload.message);
         }
       })
-      .addCase(createProduct.rejected, (state, { payload }) => { })
+      .addCase(createProduct.rejected, (state, { payload }) => { 
+        state.loading = false;
+        toast.error("Product creation failed");
+      })
 
 
       //getProductList
       .addCase(getProductList.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(getProductList.fulfilled, (state, { payload }) => {
         state.loading = false;
@@ -129,7 +141,7 @@ const productSlice = createSlice({
           state.productList = state.productList.filter(
             (item) => item._id !== payload.id
           );
-          toast.success(payload.message);
+          // toast.success(payload.message);
         } else {
           toast.error(payload.message);
         }

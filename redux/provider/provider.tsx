@@ -1,29 +1,34 @@
 "use client";
-import { Provider } from "react-redux";
+import { Provider, useDispatch } from "react-redux";
 // import { store } from "../store/store";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { Toaster } from "sonner";
 import { store } from "../store/store";
-import {SessionProvider} from "next-auth/react"
+import { SessionProvider } from "next-auth/react"
+import { checkToken } from "../slice/authSlice";
 
 type ProvidersProps = {
   children: React.ReactNode;
 };
 
 export default function Providers({ children }: ProvidersProps) {
+
+
   return (
     <>
-    <SessionProvider>
       <Provider store={store}>
+        <SessionProvider>
 
-        {children}
-        <Toaster position="top-right"
-          theme="dark"
-          richColors
-          duration={3000} />
 
+          {children}
+          {/* <Toaster position="top-right"
+            theme="dark"
+            richColors
+            duration={3000} /> */}
+
+
+        </SessionProvider>
       </Provider>
-    </SessionProvider>
     </>
 
   )
