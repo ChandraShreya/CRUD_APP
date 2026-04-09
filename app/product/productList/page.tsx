@@ -67,6 +67,7 @@ export default function ProductListPage() {
         minHeight: "100vh",
         background: "#efe3d3",
         p: 3,
+        pt:"90px",
         display: "flex",
         justifyContent: "center",
       }}
@@ -147,7 +148,7 @@ export default function ProductListPage() {
                   <tr
                     key={item._id}
                     style={{
-                      borderBottom: "1px solid #ddd", // ✅ LINE BETWEEN ROWS
+                      borderBottom: "1px solid #ddd", 
                     }}
                   >
                     <td style={tdStyle}>{item.title}</td>

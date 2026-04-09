@@ -33,29 +33,6 @@ export default function Dashboard() {
 
 	return (
 		<Box>
-			{/*  Navbar */}
-			<AppBar position="fixed" sx={{ background: "#1c1c1c" }}>
-				<Toolbar>
-					<Typography variant="h5" sx={{ flexGrow: 1, fontWeight: "bold" }}>
-						KOPPEE
-					</Typography>
-
-					<Button color="inherit">Home</Button>
-					<Button color="inherit">About</Button>
-					<Button color="inherit">Service</Button>
-					<Button color="inherit">Menu</Button>
-
-					<Button
-						variant="contained"
-						sx={{ ml: 2, background: "#d4a762" }}
-					>
-						Buy Pro
-					</Button>
-				</Toolbar>
-			</AppBar>
-
-			{/*  Spacer */}
-			<Toolbar />
 
 			{/*  Banner */}
 			<Box
@@ -131,6 +108,8 @@ export default function Dashboard() {
 						{/*  Create Product */}
 						<Button
 							variant="contained"
+							component = {Link}
+							href="/product/createProduct"
 							size="large"
 							sx={{
 								background: "linear-gradient(135deg, #d4a762, #c89b5a)",

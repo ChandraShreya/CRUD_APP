@@ -203,7 +203,9 @@ const authSlice = createSlice({
         if (payload.status == true) {
           localStorage.setItem("Id", payload.user.id)
           localStorage.setItem("email", payload.user.email)
+          localStorage.setItem("name", payload.user.name);
           state.email=payload.user.email
+          
           toast.success(payload.message)
         }
       })

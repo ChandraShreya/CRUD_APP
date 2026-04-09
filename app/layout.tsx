@@ -47,14 +47,14 @@ export default function RootLayout({
       >
 
         <Providers>
-          {/* <LayoutWrapper> */}
+          <LayoutWrapper>
             <Toaster position="top-center"
               theme="dark"
               richColors
               duration={3000} />
 
             {children}
-          {/* </LayoutWrapper> */}
+          </LayoutWrapper>
 
 
         </Providers>

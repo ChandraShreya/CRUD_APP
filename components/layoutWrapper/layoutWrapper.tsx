@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "../navbar/navbar";
-// import Navbar from "../navbar/navbar";
 
 export default function LayoutWrapper({
   children,
@@ -11,7 +10,6 @@ export default function LayoutWrapper({
 }) {
   const pathname = usePathname() || "";
 
-  // Show Navbar only for routes under /product
   const showNavbar = pathname.startsWith("/product");
 
   return (
