@@ -109,7 +109,7 @@ export default function Dashboard() {
 						<Button
 							variant="contained"
 							component = {Link}
-							href="/product/createProduct"
+							href="/product/productList"
 							size="large"
 							sx={{
 								background: "linear-gradient(135deg, #d4a762, #c89b5a)",
@@ -128,7 +128,7 @@ export default function Dashboard() {
 								},
 							}}
 						>
-							Create Product
+							 Product List
 						</Button>
 
 						{/*  Sign In */}

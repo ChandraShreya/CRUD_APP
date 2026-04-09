@@ -30,5 +30,4 @@ export const points =[
     endpoints.auth.updatePassword,
     endpoints.auth.profileDetails
 
-
 ]

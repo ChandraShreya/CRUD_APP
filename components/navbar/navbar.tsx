@@ -101,11 +101,12 @@ import { useRouter } from "next/navigation";
 export default function Navbar() {
   const dispatch = useDispatch();
   const router = useRouter()
-  const { isloggedIn } = useSelector((state: any) => state.auth);
+  // const { isloggedIn } = useSelector((state: any) => state.auth);
 
   const cookies = new Cookies();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [name, setName] = useState("");
+  const { isloggedIn, profileImage } = useSelector((state: any) => state.auth);
 
   useEffect(() => {
     dispatch(checkToken());
@@ -165,21 +166,22 @@ export default function Navbar() {
         {/* AVATAR */}
         <IconButton onClick={handleMenuOpen}>
           <Avatar
-            sx={{
-              background: "#d4a762",
-              color: "#3e1d13",
-              fontWeight: "bold",
-              width: 36,
-              height: 36,
-              transition: "all 0.3s ease",
-              "&:hover": {
-                transform: "scale(1.1)",
-                boxShadow: "0 0 10px rgba(212,167,98,0.6)",
-              },
-            }}
-          >
-            {initial}
-          </Avatar>
+  src={profileImage || image || ""}
+  sx={{
+    background: "#d4a762",
+    color: "#3e1d13",
+    fontWeight: "bold",
+    width: 36,
+    height: 36,
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "scale(1.1)",
+      boxShadow: "0 0 10px rgba(212,167,98,0.6)",
+    },
+  }}
+>
+  {!profileImage && !image && initial}
+</Avatar>
         </IconButton>
 
         {/* DROPDOWN */}
@@ -199,6 +201,7 @@ export default function Navbar() {
           <MenuItem
             onClick={() => {
               handleClose();
+              router.push("/auth/profileDetails");
             }}
             sx={{
               fontSize: "14px",

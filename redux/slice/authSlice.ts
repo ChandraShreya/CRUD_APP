@@ -98,6 +98,8 @@ const initialState = {
   isloggedIn: false,
   loading: false,
   error: null,
+  name:"",
+  profileImage:""
 };
 
 let cookie = new Cookies()
@@ -140,13 +142,13 @@ export const resetEmail = createAsyncThunk(
   "resetEmail",
   async (payload) => {
     const response = await axiosInstance.post(
-      endpoints.auth.resetEmail, 
+      endpoints.auth.resetEmail,
       payload
     );
     return response.data;
   }
 );
- /*reset link*/
+/*reset link*/
 export const resetLink = createAsyncThunk(
   "resetLink",
   async ({ userId, token, newPassword }) => {
@@ -163,11 +165,22 @@ export const updatePassword = createAsyncThunk(
   async (payload) => {
     const response = await axiosInstance.put(
       endpoints.auth.updatePassword,
-      payload 
+      payload
     );
     return response.data;
-  } 
+  }
 );
+
+export const profileDetails = createAsyncThunk(
+  "profileDetails",
+  async () => {
+    const response = await axiosInstance.get(
+      endpoints.auth.profileDetails
+    )
+    console.log("list" , response)
+    return response.data
+  }
+)
 
 const authSlice = createSlice({
   name: "authSlice",
@@ -178,7 +191,7 @@ const authSlice = createSlice({
       state.email = null
       state.token = null
       toast("Logout sucessfull")
-      state.isloggedIn=false
+      state.isloggedIn = false
 
     },
 
@@ -196,7 +209,7 @@ const authSlice = createSlice({
       .addCase(authRegistration.pending, (state, { payload }) => {
         state.loading = true,
           state.error = null
-       })
+      })
 
       .addCase(authRegistration.fulfilled, (state, { payload }) => {
         state.loading = false
@@ -204,13 +217,13 @@ const authSlice = createSlice({
           localStorage.setItem("Id", payload.user.id)
           localStorage.setItem("email", payload.user.email)
           localStorage.setItem("name", payload.user.name);
-          state.email=payload.user.email
-          
+          state.email = payload.user.email
+
           toast.success(payload.message)
         }
       })
 
-      .addCase(authRegistration.rejected, (state, { payload }) => { 
+      .addCase(authRegistration.rejected, (state, { payload }) => {
         state.loading = false
 
       })
@@ -228,65 +241,92 @@ const authSlice = createSlice({
       })
       .addCase(authLogin.rejected, (state, { payload }) => {
         state.loading = false
-       })
+      })
 
       /*verifyOtp*/
       .addCase(verifyOtp.pending, (state, { payload }) => {
         state.loading = true
         state.error = null
-       })
+      })
       .addCase(verifyOtp.fulfilled, (state, { payload }) => {
         state.loading = false
         toast.success("OTP verified successfully")
-       })
-      .addCase(verifyOtp.rejected, (state, { payload }) => { 
+      })
+      .addCase(verifyOtp.rejected, (state, { payload }) => {
         state.loading = false
         toast.error("OTP verification failed")
       });
 
-      /*reset email*/
-      builder
-      .addCase(resetEmail.pending, (state, { payload }) => { 
+    /*reset email*/
+    builder
+      .addCase(resetEmail.pending, (state, { payload }) => {
         state.loading = true
         state.error = null
       })
       .addCase(resetEmail.fulfilled, (state, { payload }) => {
         state.loading = false
         toast.success("Reset link sent to your email")
-       })
-      .addCase(resetEmail.rejected, (state, { payload }) => { 
+      })
+      .addCase(resetEmail.rejected, (state, { payload }) => {
         state.loading = false
         toast.error("Failed to send reset link")
       });
 
-      /*reset link*/
-      builder
-      .addCase(resetLink.pending, (state, { payload }) => { 
+    /*reset link*/
+    builder
+      .addCase(resetLink.pending, (state, { payload }) => {
         state.loading = true
         state.error = null
       })
       .addCase(resetLink.fulfilled, (state, { payload }) => {
         state.loading = false
         toast.success("Password reset successful")
-       })
-      .addCase(resetLink.rejected, (state, { payload }) => { 
+      })
+      .addCase(resetLink.rejected, (state, { payload }) => {
         state.loading = false
         toast.error("Password reset failed")
       });
-      /*update password*/
-      builder
-      .addCase(updatePassword.pending, (state, { payload }) => { 
+    /*update password*/
+    builder
+      .addCase(updatePassword.pending, (state, { payload }) => {
         state.loading = true
         state.error = null
       })
       .addCase(updatePassword.fulfilled, (state, { payload }) => {
         state.loading = false
         toast.success("Password updated successfully")
-       })
-      .addCase(updatePassword.rejected, (state, { payload }) => { 
+      })
+      .addCase(updatePassword.rejected, (state, { payload }) => {
         state.loading = false
         toast.error("Failed to update password")
       });
+
+    builder
+      .addCase(profileDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+
+      .addCase(profileDetails.fulfilled, (state, action) => {
+  state.loading = false;
+
+  if (action.payload?.status === true) {
+    const user = action.payload.data; 
+
+    state.userId = user?._id || null;
+    state.email = user?.email || null;
+    state.name = user?.name || "";
+    state.address= user?.address || ""
+   state.profileImage = `http://localhost:4000${user.imagePath}`;
+  }
+})
+
+      .addCase(profileDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch profile";
+      });
+
+
 
   },
 });
